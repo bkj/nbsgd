@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    bow.py
+    nbsgd.py
 """
 
 from __future__ import print_function, division
@@ -12,9 +12,6 @@ import string
 import numpy as np
 from tqdm import tqdm
 
-from rsub import *
-from matplotlib import pyplot as plt
-
 from scipy.sparse import coo_matrix, csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -23,7 +20,6 @@ from torch import nn
 from torch.utils.data import dataset, DataLoader
 from torch.autograd import Variable
 from torch.nn import functional as F
-from torch.utils.data.sampler import SequentialSampler, RandomSampler, BatchSampler
 
 
 # --
@@ -154,28 +150,9 @@ class DotProdNB(nn.Module):
         return loss.data[0]
 
 
-r = np.column_stack([calc_r(i, X_train, y_train) for i in range(n_classes)])
-model = DotProdNB(vocab_size, n_classes, r).cuda()
-
 # --
 # Train
 
-losses, evals = [], []
-for _ in range(4):
-    _ = model.train()
-    for x, y in train_dataloader:
-        y = y.max(dim=1)[1].long()
-        x, y = Variable(x.cuda()), Variable(y.cuda())
-        losses.append(model.step(x, y))
-    
-    evals.append(do_eval())
-    print(evals[-1])
-
-_ = plt.plot(losses)
-show_plot()
-
-# --
-# Eval
 
 def do_eval():
     _ = model.eval()
@@ -190,3 +167,19 @@ def do_eval():
     
     return (pred == act).mean()
 
+
+r = np.column_stack([calc_r(i, X_train, y_train) for i in range(n_classes)])
+model = DotProdNB(vocab_size, n_classes, r).cuda()
+
+losses, evals = [], []
+for _ in range(4):
+    _ = model.train()
+    for x, y in train_dataloader:
+        y = y.max(dim=1)[1].long()
+        x, y = Variable(x.cuda()), Variable(y.cuda())
+        losses.append(model.step(x, y))
+    
+    evals.append(do_eval())
+    print(evals[-1])
+
+do_eval()
