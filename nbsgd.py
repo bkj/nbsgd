@@ -56,10 +56,6 @@ def to_numpy(x):
     return x.cpu().numpy() if x.is_cuda else x.numpy()
 
 
-def one_hot(a, c):
-    return np.eye(c)[a]
-
-
 def calc_r(y_i, x, y):
     x = x.sign()
     p = x[np.argwhere(y == y_i)[:,0]].sum(axis=0) + 1
@@ -100,11 +96,11 @@ X_val_words, _ = bow2adjlist(X_val, maxcols=1000)
 
 train_dataset = dataset.TensorDataset(
     data_tensor=torch.from_numpy(X_train_words.toarray()).long(),
-    target_tensor=torch.from_numpy(one_hot(y_train, n_classes).astype(np.float32)),
+    target_tensor=torch.from_numpy(y_train).long()
 )
 val_dataset = dataset.TensorDataset(
     data_tensor=torch.from_numpy(X_val_words.toarray()).long(),
-    target_tensor=torch.from_numpy(one_hot(y_val, n_classes).astype(np.float32)),
+    target_tensor=torch.from_numpy(y_val).long(),
 )
 
 train_dataloader = DataLoader(train_dataset, batch_size=256, shuffle=True)
@@ -163,7 +159,7 @@ def do_eval():
         act.append(y)
         
     pred = to_numpy(torch.cat(pred)).argmax(axis=1)
-    act = to_numpy(torch.cat(act)).argmax(axis=1)
+    act = to_numpy(torch.cat(act))
     
     return (pred == act).mean()
 
@@ -175,11 +171,11 @@ losses, evals = [], []
 for _ in range(4):
     _ = model.train()
     for x, y in train_dataloader:
-        y = y.max(dim=1)[1].long()
         x, y = Variable(x.cuda()), Variable(y.cuda())
         losses.append(model.step(x, y))
     
     evals.append(do_eval())
-    print(evals[-1])
+    print("acc=%f" % evals[-1])
 
-do_eval()
+final_acc = do_eval()
+print("final_acc=%f" % final_acc)
