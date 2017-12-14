@@ -110,8 +110,7 @@ val_dataloader = DataLoader(val_dataset, batch_size=256, shuffle=False)
 # Define model
 
 class DotProdNB(nn.Module):
-    def __init__(self, vocab_size, n_classes, r, w_adj=0.4, r_adj=10, 
-        lr=0.02, weight_decay=1e-6):
+    def __init__(self, vocab_size, n_classes, r, w_adj=0.4, r_adj=10, lr=0.02, weight_decay=1e-6):
         
         super(DotProdNB, self).__init__()
         
@@ -134,8 +133,7 @@ class DotProdNB(nn.Module):
         w = self.w(feat_idx)
         r = self.r(feat_idx)
         
-        x = ((w + self.w_adj) * r / self.r_adj).sum(dim=1)
-        return F.softmax(x)
+        return ((w + self.w_adj) * r / self.r_adj).sum(dim=1)
     
     def step(self, x, y):
         output = self(x)
