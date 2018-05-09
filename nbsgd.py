@@ -97,7 +97,7 @@ class DotProdNB(nn.Module):
         r = self.r(feat_idx)
         
         x = (w * r).sum(dim=1)
-        x =  x / self.r_adj # !! ??
+        x =  x / self.r_adj
         return x
     
     def step(self, x, y):
@@ -153,4 +153,3 @@ for _ in range(num_epochs):
 
 final_acc = do_eval(model)
 print("final_acc=%f" % final_acc)
-
