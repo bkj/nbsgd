@@ -69,7 +69,6 @@ if __name__ == "__main__":
     # Preprocess
     print("prep.py: preprocessing", file=sys.stderr)
 
-
     re_tok = re.compile('([%s“”¨«»®´·º½¾¿¡§£₤‘’])' % string.punctuation)
     tokenizer = lambda x: re_tok.sub(r' \1 ', x).split()
 
